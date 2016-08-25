@@ -89,8 +89,8 @@ class SwipeListView extends Component {
 					onRowClose={ _ => this.props.onRowClose && this.props.onRowClose(secId, rowId, this._rows) }
 					onRowPress={ _ => this.onRowPress(`${secId}${rowId}`) }
 					setScrollEnabled={ (enable) => this.setScrollEnabled(enable) }
-					leftOpenValue={this.props.leftOpenValue(rowData, secId, rowId, rowMap)}
-					rightOpenValue={this.props.rightOpenValue(rowData, secId, rowId, rowMap)}
+					leftOpenValue={this.props.leftOpenValue != null ? this.props.leftOpenValue(rowData, secId, rowId, rowMap) : 0}
+					rightOpenValue={this.props.rightOpenValue != null ? this.props.rightOpenValue(rowData, secId, rowId, rowMap) : 0}
 					closeOnRowPress={this.props.closeOnRowPress}
 					disableLeftSwipe={this.props.disableLeftSwipe}
 					disableRightSwipe={this.props.disableRightSwipe}
