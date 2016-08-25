@@ -74,7 +74,15 @@ class SwipeRow extends Component {
 			return false
 		}
 
-		return Math.abs(dx) > DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD;
+		let hold = Math.abs(dx) > DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD;
+		// user is moving horizontally
+		if (hold && this.parentScrollEnabled) {
+			// disable scrolling on the listView parent
+			this.parentScrollEnabled = false;
+			this.props.setScrollEnabled && this.props.setScrollEnabled(false);
+		}
+
+		return hold
 	}
 
 	handlePanResponderMove(e, gestureState) {
@@ -89,13 +97,6 @@ class SwipeRow extends Component {
 			if (absDy > absDx && !this.horizontalSwipeGestureBegan) {
 				// user is moving vertically, do nothing, listView will handle
 				return;
-			}
-
-			// user is moving horizontally
-			if (this.parentScrollEnabled) {
-				// disable scrolling on the listView parent
-				this.parentScrollEnabled = false;
-				this.props.setScrollEnabled && this.props.setScrollEnabled(false);
 			}
 
 			if (this.swipeInitialX === null) {
