@@ -69,7 +69,11 @@ class SwipeRow extends Component {
 	}
 
 	handleOnMoveShouldSetPanResponder(e, gs) {
-		const { dx } = gs;
+		const { dx, dy } = gs;
+		if (Math.abs(dy) > Math.abs(dx)) {
+			return false
+		}
+
 		return Math.abs(dx) > DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD;
 	}
 
