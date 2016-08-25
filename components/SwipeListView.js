@@ -89,8 +89,8 @@ class SwipeListView extends Component {
 					onRowClose={ _ => this.props.onRowClose && this.props.onRowClose(secId, rowId, this._rows) }
 					onRowPress={ _ => this.onRowPress(`${secId}${rowId}`) }
 					setScrollEnabled={ (enable) => this.setScrollEnabled(enable) }
-					leftOpenValue={this.props.leftOpenValue}
-					rightOpenValue={this.props.rightOpenValue}
+					leftOpenValue={this.props.leftOpenValue(rowData, secId, rowId, rowMap)}
+					rightOpenValue={this.props.rightOpenValue(rowData, secId, rowId, rowMap)}
 					closeOnRowPress={this.props.closeOnRowPress}
 					disableLeftSwipe={this.props.disableLeftSwipe}
 					disableRightSwipe={this.props.disableRightSwipe}
@@ -130,11 +130,11 @@ SwipeListView.propTypes = {
 	/**
 	 * TranslateX value for opening the row to the left (positive number)
 	 */
-	leftOpenValue: PropTypes.number,
+	leftOpenValue: PropTypes.func,
 	/**
 	 * TranslateX value for opening the row to the right (negative number)
 	 */
-	rightOpenValue: PropTypes.number,
+	rightOpenValue: PropTypes.func,
 	/**
 	 * Should open rows be closed when the listView begins scrolling
 	 */
@@ -181,8 +181,6 @@ SwipeListView.propTypes = {
 }
 
 SwipeListView.defaultProps = {
-	leftOpenValue: 0,
-	rightOpenValue: 0,
 	closeOnScroll: true,
 	closeOnRowPress: true,
 	disableLeftSwipe: false,
