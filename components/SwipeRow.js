@@ -90,10 +90,12 @@ class SwipeRow extends Component {
 		const absDx = Math.abs(dx);
 		const absDy = Math.abs(dy);
 		if (this.lastDx != null && this.lastDy != null
-			&& (Math.abs(dx - this.lastDx) > 50 || Math.abs(dy - this.lastDy) > 50)) {
+			&& (Math.abs(dx - this.lastDx) > 30 || Math.abs(dy - this.lastDy) > 30)) {
 			return
 		}
 
+		this.lastDx = dx
+		this.lastDy = dy
 		// this check may not be necessary because we don't capture the move until we pass the threshold
 		// just being extra safe here
 		if (absDx > DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD || absDy > DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD) {
