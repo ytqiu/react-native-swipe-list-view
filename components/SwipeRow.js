@@ -89,6 +89,10 @@ class SwipeRow extends Component {
 		const { dx, dy } = gestureState;
 		const absDx = Math.abs(dx);
 		const absDy = Math.abs(dy);
+		if (this.lastDx != null && this.lastDy != null
+			&& (Math.abs(dx - this.lastDx) > 50 || Math.abs(dy - this.lastDy) > 50)) {
+			return
+		}
 
 		// this check may not be necessary because we don't capture the move until we pass the threshold
 		// just being extra safe here
@@ -118,6 +122,9 @@ class SwipeRow extends Component {
 
 	handlePanResponderEnd(e, gestureState) {
 		// re-enable scrolling on listView parent
+		this.lastDx = null
+		this.lastDy = null
+
 		if (!this.parentScrollEnabled) {
 			this.parentScrollEnabled = true;
 			this.props.setScrollEnabled && this.props.setScrollEnabled(true);
