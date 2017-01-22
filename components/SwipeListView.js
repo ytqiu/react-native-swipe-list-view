@@ -76,17 +76,22 @@ class SwipeListView extends Component {
 					...Component.props,
 					ref: row => this._rows[`${secId}${rowId}`] = row,
 					onRowOpen: _ => this.onRowOpen(secId, rowId, this._rows),
+					onRowDidOpen: _ => this.props.onRowDidOpen && this.props.onRowDidOpen(secId, rowId, this._rows),
 					onRowClose: _ => this.props.onRowClose && this.props.onRowClose(secId, rowId, this._rows),
+					onRowDidClose: _ => this.props.onRowDidClose && this.props.onRowDidClose(secId, rowId, this._rows),
 					onRowPress: _ => this.onRowPress(`${secId}${rowId}`),
 					setScrollEnabled: enable => this.setScrollEnabled(enable)
 				}
 			);
 		} else {
+			const previewRowId = this.props.dataSource && this.props.dataSource.getRowIDForFlatIndex(this.props.previewRowIndex || 0);
 			return (
 				<SwipeRow
 					ref={row => this._rows[`${secId}${rowId}`] = row}
 					onRowOpen={ _ => this.onRowOpen(secId, rowId, this._rows) }
+					onRowDidOpen={ _ => this.props.onRowDidOpen && this.props.onRowDidOpen(secId, rowId, this._rows)}
 					onRowClose={ _ => this.props.onRowClose && this.props.onRowClose(secId, rowId, this._rows) }
+					onRowDidClose={ _ => this.props.onRowDidClose && this.props.onRowDidClose(secId, rowId, this._rows) }
 					onRowPress={ _ => this.onRowPress(`${secId}${rowId}`) }
 					setScrollEnabled={ (enable) => this.setScrollEnabled(enable) }
 					leftOpenValue={this.props.leftOpenValue != null ? this.props.leftOpenValue(rowData, secId, rowId, rowMap) : 0}
@@ -94,8 +99,15 @@ class SwipeListView extends Component {
 					closeOnRowPress={this.props.closeOnRowPress}
 					disableLeftSwipe={this.props.disableLeftSwipe}
 					disableRightSwipe={this.props.disableRightSwipe}
+					stopLeftSwipe={this.props.stopLeftSwipe}
+					stopRightSwipe={this.props.stopRightSwipe}
 					recalculateHiddenLayout={this.props.recalculateHiddenLayout}
 					style={this.props.swipeRowStyle}
+					preview={(this.props.previewFirstRow || this.props.previewRowIndex) && rowId === previewRowId}
+					previewDuration={this.props.previewDuration}
+					previewOpenValue={this.props.previewOpenValue}
+					tension={this.props.tension}
+					friction={this.props.friction}
 				>
 					{this.props.renderHiddenRow(rowData, secId, rowId, this._rows)}
 					{this.props.renderRow(rowData, secId, rowId, this._rows)}
@@ -136,6 +148,14 @@ SwipeListView.propTypes = {
 	 */
 	rightOpenValue: PropTypes.func,
 	/**
+	 * TranslateX value for stop the row to the left (positive number)
+	 */
+	stopLeftSwipe: PropTypes.number,
+	/**
+	 * TranslateX value for stop the row to the right (negative number)
+	 */
+	stopRightSwipe: PropTypes.number,
+	/**
 	 * Should open rows be closed when the listView begins scrolling
 	 */
 	closeOnScroll: PropTypes.bool,
@@ -166,18 +186,53 @@ SwipeListView.propTypes = {
 	 */
 	onRowOpen: PropTypes.func,
 	/**
+	 * Called when a swipe row has animated open
+	 */
+	onRowDidOpen: PropTypes.func,
+	/**
 	 * Called when a swipe row is animating closed
 	 */
 	onRowClose: PropTypes.func,
 	/**
+	 * Called when a swipe row has animated closed
+	 */
+	onRowDidClose: PropTypes.func,
+	/**
 	 * Styles for the parent wrapper View of the SwipeRow
 	 */
-	swipeRowStyle: PropTypes.object,
+	swipeRowStyle: View.propTypes.style,
 	/**
 	 * Called when the ListView ref is set and passes a ref to the ListView
 	 * e.g. listViewRef={ ref => this._swipeListViewRef = ref }
 	 */
-	listViewRef: PropTypes.func
+	listViewRef: PropTypes.func,
+	/**
+	 * Should the first SwipeRow do a slide out preview to show that the list is swipeable
+	 */
+	previewFirstRow: PropTypes.bool,
+	/**
+	 * Should the specified rowId do a slide out preview to show that the list is swipeable
+	 * Note: This ID will be passed to this function to get the correct row index
+	 * https://facebook.github.io/react-native/docs/listviewdatasource.html#getrowidforflatindex
+	 */
+	previewRowIndex: PropTypes.number,
+	/**
+	 * Duration of the slide out preview animation (milliseconds)
+	 */
+	previewDuration: PropTypes.number,
+	/**
+	 * TranslateX value for the slide out preview animation
+	 * Default: 0.5 * props.rightOpenValue
+	 */
+	previewOpenValue: PropTypes.number,
+	/**
+	 * Friction for the open / close animation
+	 */
+	friction: PropTypes.number,
+	/**
+	 * Tension for the open / close animation
+	 */
+	tension: PropTypes.number,
 }
 
 SwipeListView.defaultProps = {
@@ -185,7 +240,8 @@ SwipeListView.defaultProps = {
 	closeOnRowPress: true,
 	disableLeftSwipe: false,
 	disableRightSwipe: false,
-	recalculateHiddenLayout: false
+	recalculateHiddenLayout: false,
+	previewFirstRow: false
 }
 
 export default SwipeListView;

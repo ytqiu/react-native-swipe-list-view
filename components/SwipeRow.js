@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 
 const DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD = 2;
+const PREVIEW_OPEN_DELAY = 700;
+const PREVIEW_CLOSE_DELAY = 300;
 
 /**
  * Row that is generally used in a SwipeListView.
@@ -32,6 +34,7 @@ class SwipeRow extends Component {
 		this.horizontalSwipeGestureBegan = false;
 		this.swipeInitialX = null;
 		this.parentScrollEnabled = true;
+		this.ranPreview = false;
 		this.state = {
 			dimensionsSet: false,
 			hiddenHeight: 0,
@@ -50,12 +53,28 @@ class SwipeRow extends Component {
 		});
 	}
 
+	getPreviewAnimation(toValue, delay) {
+		return Animated.timing(
+			this.state.translateX,
+			{ duration: this.props.previewDuration, toValue, delay }
+		);
+	}
+
 	onContentLayout(e) {
 		this.setState({
 			dimensionsSet: !this.props.recalculateHiddenLayout,
 			hiddenHeight: e.nativeEvent.layout.height,
 			hiddenWidth: e.nativeEvent.layout.width,
 		});
+
+		if (this.props.preview && !this.ranPreview) {
+			this.ranPreview = true;
+			let previewOpenValue = this.props.previewOpenValue || this.props.rightOpenValue * 0.5;
+			this.getPreviewAnimation(previewOpenValue, PREVIEW_OPEN_DELAY)
+			.start( _ => {
+				this.getPreviewAnimation(0, PREVIEW_CLOSE_DELAY).start();
+			});
+		}
 	}
 
 	onRowPress() {
@@ -115,6 +134,10 @@ class SwipeRow extends Component {
 			if (this.props.disableLeftSwipe  && newDX < 0) { newDX = 0; }
 			if (this.props.disableRightSwipe && newDX > 0) { newDX = 0; }
 
+
+			if (this.props.stopLeftSwipe && newDX > this.props.stopLeftSwipe) { newDX = this.props.stopLeftSwipe; }
+			if (this.props.stopRightSwipe && newDX < this.props.stopRightSwipe) { newDX = this.props.stopRightSwipe; }
+
 			this.setState({
 				translateX: new Animated.Value(newDX)
 			});
@@ -159,18 +182,25 @@ class SwipeRow extends Component {
 	}
 
 	manuallySwipeRow(toValue) {
-		Animated.spring(this.state.translateX,
+		Animated.spring(
+			this.state.translateX,
 			{
 				toValue,
 				friction: this.props.friction,
 				tension: this.props.tension
 			}
-		).start();
+		).start( _ => {
+			if (toValue === 0) {
+				this.props.onRowDidClose && this.props.onRowDidClose();
+			} else {
+				this.props.onRowDidOpen && this.props.onRowDidOpen();
+			}
+		});
 
 		if (toValue === 0) {
 			this.props.onRowClose && this.props.onRowClose();
 		} else {
-			this.props.onRowOpen && this.props.onRowOpen();
+			this.props.onRowOpen && this.props.onRowOpen(toValue);
 		}
 
 		// reset everything
@@ -285,6 +315,10 @@ SwipeRow.propTypes = {
 	 * to keep references to open rows.
 	 */
 	onRowOpen: PropTypes.func,
+  /**
+	 * Called when a swipe row has animated open.
+	 */
+  onRowDidOpen: PropTypes.func,
 	/**
 	 * TranslateX value for opening the row to the left (positive number)
 	 */
@@ -293,6 +327,14 @@ SwipeRow.propTypes = {
 	 * TranslateX value for opening the row to the right (negative number)
 	 */
 	rightOpenValue: PropTypes.number,
+	/**
+	 * TranslateX value for stop the row to the left (positive number)
+	 */
+	stopLeftSwipe: PropTypes.number,
+	/**
+	 * TranslateX value for stop the row to the right (negative number)
+	 */
+	stopRightSwipe: PropTypes.number,
 	/**
 	 * Friction for the open / close animation
 	 */
@@ -321,10 +363,27 @@ SwipeRow.propTypes = {
 	 * Called when a swipe row is animating closed
 	 */
 	onRowClose: PropTypes.func,
+  /**
+   * Called when a swipe row has animated closed
+   */
+  onRowDidClose: PropTypes.func,
 	/**
 	 * Styles for the parent wrapper View of the SwipeRow
 	 */
-	style: PropTypes.object
+	style: View.propTypes.style,
+	/**
+	 * Should the row do a slide out preview to show that it is swipeable
+	 */
+	preview: PropTypes.bool,
+	/**
+	 * Duration of the slide out preview animation
+	 */
+	previewDuration: PropTypes.number,
+	/**
+	 * TranslateX value for the slide out preview animation
+	 * Default: 0.5 * props.rightOpenValue
+	 */
+	previewOpenValue: PropTypes.number
 };
 
 SwipeRow.defaultProps = {
@@ -333,7 +392,9 @@ SwipeRow.defaultProps = {
 	closeOnRowPress: true,
 	disableLeftSwipe: false,
 	disableRightSwipe: false,
-	recalculateHiddenLayout: false
+	recalculateHiddenLayout: false,
+	preview: false,
+	previewDuration: 300
 };
 
 export default SwipeRow;

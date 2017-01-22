@@ -19,6 +19,7 @@ npm install --save react-native-swipe-list-view
 The application under ./SwipeListExample will produce the above example. To run execute the following:
 
 * ```git clone https://github.com/jemise111/react-native-swipe-list-view.git```
+* ```cd react-native-swipe-list-view```
 * ```cd SwipeListExample```
 * ```npm install```
 * ```react-native run-ios | react-native run-android```
@@ -108,6 +109,8 @@ If you need rows to behave independently you can return a ```<SwipeRow>``` in th
 The following values can be dynamic by passing them as props on the ```<SwipeRow>```:
  * ```leftOpenValue```
  * ```rightOpenValue```
+ * ```stopLeftSwipe```
+ * ```stopRightSwipe```
  * ```closeOnRowPress```
  * ```disableLeftSwipe```
  * ```disableRightSwipe```
@@ -234,9 +237,25 @@ Called when a swipe row is animating closed
 type: `func`
 
 
+### `onRowDidClose`
+
+Called when a swipe row has animated closed
+
+type: `func`
+
+
 ### `onRowOpen`
 
-Called when a swipe row is animating open
+Called when a swipe row is animating open.
+
+This has a param of `toValue` which is the new X value the row (after it has opened). This can be used to calculate which direction the row has been swiped open.
+
+type: `func`
+
+
+### `onRowDidOpen`
+
+Called when a swipe row has animated open
 
 type: `func`
 
@@ -254,6 +273,51 @@ Called when the ListView ref is set and passes a ref to the ListView
 e.g. ```listViewRef={ ref => this._swipeListViewRef = ref }```
 
 type: `func`
+
+
+### `previewFirstRow`
+
+Should the first SwipeRow do a slide out preview to show that the list is swipeable
+
+type: `bool`
+defaultValue: `false`
+
+### `previewRowIndex`
+
+Should the specified rowId do a slide out preview to show that the list is swipeable
+ * ***Note***: This ID will be passed to this function to get the correct row index
+ * https://facebook.github.io/react-native/docs/listviewdatasource.html#getrowidforflatindex
+
+type: `number`
+
+
+### `previewDuration`
+
+Duration of the slide out preview animation
+
+type: `number`
+
+
+### `previewOpenValue`
+
+TranslateX value for the slide out preview animation
+Default: 0.5 * props.rightOpenValue
+
+type: `number`
+
+
+### `friction`
+
+Friction for the open / close animation
+
+type: `number`
+
+
+### `tension`
+
+Tension for the open / close animation
+
+type: `number`
 
 
 `SwipeRow` (component)
@@ -294,6 +358,24 @@ TranslateX value for opening the row to the left (positive number)
 type: `number`
 defaultValue: `0`
 
+### `stopLeftSwipe`
+
+TranslateX value for stop the row to the left (positive number)
+
+type: `number`
+
+### `stopRightSwipe`
+
+TranslateX value for stop the row to the right (negative number)
+
+type: `number`
+
+
+### `onRowPress`
+
+Called when a swipe row is pressed.
+
+type: `func`
 
 ### `onRowOpen`
 
@@ -362,6 +444,31 @@ defaultValue: `false`
 Styles for the parent wrapper View of the SwipeRow
 
 type: `object`
+
+
+### `preview`
+
+Should the row do a slide out preview to show that it is swipeable
+
+type: `bool`
+defaultValue: `false`
+
+
+### `previewDuration`
+
+Duration of the slide out preview animation
+
+type: `number`
+defaultValue: `300`
+
+
+### `previewOpenValue`
+
+TranslateX value for the slide out preview animation
+Default: 0.5 * props.rightOpenValue
+
+type: `number`
+
 
 ### *Note: Core Support*
 RN Core added a SwipeList component as of [v0.27.0](https://github.com/facebook/react-native/releases/tag/v0.27.0)
