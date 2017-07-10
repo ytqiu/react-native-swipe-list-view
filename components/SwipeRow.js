@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 const DIRECTIONAL_DISTANCE_CHANGE_THRESHOLD = 2;
+const DIRECTIONAL_DISTANCE_CHANGE_MAX = 100
 const PREVIEW_OPEN_DELAY = 700;
 const PREVIEW_CLOSE_DELAY = 300;
 
@@ -31,6 +32,7 @@ class SwipeRow extends Component {
 
 	constructor(props) {
 		super(props);
+		this.opening = false;
 		this.horizontalSwipeGestureBegan = false;
 		this.swipeInitialX = null;
 		this.parentScrollEnabled = true;
@@ -50,6 +52,7 @@ class SwipeRow extends Component {
 			onPanResponderRelease: (e, gs) => this.handlePanResponderEnd(e, gs),
 			onPanResponderTerminate: (e, gs) => this.handlePanResponderEnd(e, gs),
 			onShouldBlockNativeResponder: _ => false,
+			onPanResponderTerminationRequest: (e) => this.horizontalSwipeGestureBegan,
 		});
 	}
 
@@ -109,7 +112,7 @@ class SwipeRow extends Component {
 		const absDx = Math.abs(dx);
 		const absDy = Math.abs(dy);
 		if (this.lastDx != null && this.lastDy != null
-			&& (Math.abs(dx - this.lastDx) > 30 || Math.abs(dy - this.lastDy) > 30)) {
+			&& (Math.abs(dx - this.lastDx) > DIRECTIONAL_DISTANCE_CHANGE_MAX || Math.abs(dy - this.lastDy) > DIRECTIONAL_DISTANCE_CHANGE_MAX)) {
 			return
 		}
 
@@ -159,15 +162,19 @@ class SwipeRow extends Component {
 		let toValue = 0;
 		if (this.state.translateX._value >= 0) {
 			// trying to open right
-			if (this.state.translateX._value > this.props.leftOpenValue / 2) {
+			if (this.opening && this.state.translateX._value < this.props.leftOpenValue) {
+				toValue = 0;
+			} else if (this.state.translateX._value > this.props.leftOpenValue / 3) {
 				// we're more than halfway
 				toValue = this.props.leftOpenValue;
 			}
 		} else {
 			// trying to open left
-			if (this.state.translateX._value < this.props.rightOpenValue / 2) {
+			if (this.opening && this.state.translateX._value > this.props.rightOpenValue) {
+				toValue = 0;
+			} else if (this.state.translateX._value < this.props.rightOpenValue / 3) {
 				// we're more than halfway
-				toValue = this.props.rightOpenValue
+				toValue = this.props.rightOpenValue;
 			}
 		}
 
@@ -194,10 +201,12 @@ class SwipeRow extends Component {
 				this.props.onRowDidClose && this.props.onRowDidClose();
 			} else {
 				this.props.onRowDidOpen && this.props.onRowDidOpen();
+				this.opening = true;
 			}
 		});
 
 		if (toValue === 0) {
+			this.opening = false;
 			this.props.onRowClose && this.props.onRowClose();
 		} else {
 			this.props.onRowOpen && this.props.onRowOpen(toValue);
