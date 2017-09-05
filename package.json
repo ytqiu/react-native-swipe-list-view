@@ -23,8 +23,8 @@
     "swipeable"
   ],
   "peerDependencies": {
-    "react": ">=0.14.8",
-    "react-native": ">=0.23.1"
+    "react": "*",
+    "react-native": "*"
   },
   "devDependencies": {
     "react": "~15.3.1",
