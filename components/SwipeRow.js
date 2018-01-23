@@ -31,7 +31,7 @@ class SwipeRow extends Component {
             dimensionsSet: false,
             hiddenHeight: 0,
             hiddenWidth: 0,
-            translateX: new Animated.Value(0)
+            translateX: new Animated.Value(0),
         }
     }
 
@@ -42,7 +42,7 @@ class SwipeRow extends Component {
             onPanResponderRelease: (e, gs) => this.handlePanResponderEnd(e, gs),
             onPanResponderTerminate: (e, gs) => this.handlePanResponderEnd(e, gs),
             onShouldBlockNativeResponder: (_) => false,
-            onPanResponderTerminationRequest: (e) => this.horizontalSwipeGestureBegan
+            onPanResponderTerminationRequest: (e) => this.horizontalSwipeGestureBegan,
         })
     }
 
@@ -54,7 +54,7 @@ class SwipeRow extends Component {
         this.setState({
             dimensionsSet: !this.props.recalculateHiddenLayout,
             hiddenHeight: e.nativeEvent.layout.height,
-            hiddenWidth: e.nativeEvent.layout.width
+            hiddenWidth: e.nativeEvent.layout.width,
         })
 
         if (this.props.preview && !this.ranPreview) {
@@ -138,9 +138,7 @@ class SwipeRow extends Component {
                 newDX = this.props.stopRightSwipe
             }
 
-            this.setState({
-                translateX: new Animated.Value(newDX)
-            })
+            this.state.translateX.setValue(newDX)
         }
     }
 
@@ -188,7 +186,7 @@ class SwipeRow extends Component {
         Animated.spring(this.state.translateX, {
             toValue,
             friction: this.props.friction,
-            tension: this.props.tension
+            tension: this.props.tension,
         }).start((_) => {
             if (toValue === 0) {
                 this.props.onRowDidClose && this.props.onRowDidClose()
@@ -221,7 +219,7 @@ class SwipeRow extends Component {
             }
             return React.cloneElement(this.props.children[1], {
                 ...this.props.children[1].props,
-                onPress: newOnPress
+                onPress: newOnPress,
             })
         }
 
@@ -240,7 +238,7 @@ class SwipeRow extends Component {
                 <Animated.View
                     {...this._panResponder.panHandlers}
                     style={{
-                        transform: [{ translateX: this.state.translateX }]
+                        transform: [{ translateX: this.state.translateX }],
                     }}>
                     {this.renderVisibleContent()}
                 </Animated.View>
@@ -251,7 +249,7 @@ class SwipeRow extends Component {
                     {...this._panResponder.panHandlers}
                     onLayout={(e) => this.onContentLayout(e)}
                     style={{
-                        transform: [{ translateX: this.state.translateX }]
+                        transform: [{ translateX: this.state.translateX }],
                     }}>
                     {this.renderVisibleContent()}
                 </Animated.View>
@@ -267,8 +265,8 @@ class SwipeRow extends Component {
                         styles.hidden,
                         {
                             height: this.state.hiddenHeight,
-                            width: this.state.hiddenWidth
-                        }
+                            width: this.state.hiddenWidth,
+                        },
                     ]}>
                     {this.props.children[0]}
                 </View>
@@ -289,8 +287,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'absolute',
         right: 0,
-        top: 0
-    }
+        top: 0,
+    },
 })
 
 SwipeRow.propTypes = {
@@ -372,7 +370,7 @@ SwipeRow.propTypes = {
      * TranslateX value for the slide out preview animation
      * Default: 0.5 * props.rightOpenValue
      */
-    previewOpenValue: PropTypes.number
+    previewOpenValue: PropTypes.number,
 }
 
 SwipeRow.defaultProps = {
@@ -383,7 +381,7 @@ SwipeRow.defaultProps = {
     disableRightSwipe: false,
     recalculateHiddenLayout: false,
     preview: false,
-    previewDuration: 300
+    previewDuration: 300,
 }
 
 export default SwipeRow
